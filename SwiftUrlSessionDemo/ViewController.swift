@@ -11,11 +11,21 @@ import Alamofire
 
 class ViewController: UIViewController {
 
+    let KScreenWidth=UIScreen.mainScreen().bounds.size.width;
+    let KScreenHeight=UIScreen.mainScreen().bounds.size.height;
+
+    var queryBtn:UIButton!
+    
     override func viewDidLoad() {
         super.viewDidLoad()
-        testGet()
-        testPost()
-        testUrlSession()
+        queryBtn = UIButton(frame:CGRectMake(KScreenWidth/2-25, KScreenHeight/2-25, 50, 50))
+        queryBtn.setTitle("请求", forState:.Normal)
+        queryBtn.backgroundColor=UIColor.blackColor()
+        queryBtn.addTarget(self, action: Selector("testGet"), forControlEvents:.TouchUpInside)
+        self.view.addSubview(queryBtn)
+//        testGet()
+//        testPost()
+//        testUrlSession()
     }
     
     override func didReceiveMemoryWarning() {
@@ -24,15 +34,19 @@ class ViewController: UIViewController {
     }
     
     func testGet(){
-        let para=["getpara1": "getxcode","getpara2":"getnodejs"];
+        let para=["account": "shen"];
         Alamofire.request(.GET, "http://localhost:8002/getdemo",parameters:para)
-            .responseJSON { response in
-                //print(response.request)  // original URL request
-                //print(response.response) // URL response
-                //print(response.data)     // server data
-                //print(response.result)   // result of response serialization
-                if let JSON = response.result.value {
-                    print("getJSON: \(JSON)")
+            .responseJSON{ response in
+                switch response.result {
+                case .Success:
+                    //把得到的JSON数据转为字典
+                    if let resDic = response.result.value as? NSDictionary{
+                        //获取字典里面的key为数组
+                        let passwordStr = resDic.valueForKey("password")as! NSString
+                        print(passwordStr)
+                    }
+                case .Failure(let error):
+                    print(error)
                 }
         }
     }
